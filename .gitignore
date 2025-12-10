@@ -1,0 +1,10 @@
+node_modules/
+.env
+backups/
+.DS_Store
+dist/
+coverage/
+
+# personal files
+project_documentation.md
+project_steps.md
