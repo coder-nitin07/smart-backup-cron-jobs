@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const fs = require('fs-extra');
 const db = require('./config/db');
+const router = require('./routes/backupRoutes');
 require('dotenv').config();
 
 app.use(express.json());
@@ -17,6 +18,8 @@ const BACKUPS_DIR = process.env.BACKUPS_DIR || path.join(__dirname, '..', 'backu
 fs.ensureDirSync(BACKUPS_DIR);
 
 // route
+app.use('/api/backups', router);
+
 app.get('/', (req, res)=>{
     res.send('Smart Auto Backup App running...');
 });
