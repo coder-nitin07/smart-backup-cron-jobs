@@ -1,31 +1,24 @@
 const cron = require("node-cron");
-const fs = require("fs");
-const path = require("path");
+const BackupSetting = require("../models/BackupSetting");
+const { runBackupForUser } = require("../services/backupService");
 
-const uploadsDir = path.join(process.cwd(), "backups");
-const historyDir = path.join(process.cwd(), "backups/history");
-
-// Cron job (runs every 1 minute)
 const startBackupCron = () => {
-  cron.schedule("* * * * *", () => {
-    console.log("⏳ Cron Job Running: Checking for backups...");
+  // runs every 1 minute
+  cron.schedule("* * * * *", async () => {
+    console.log("Cron Running: Checking user backup schedules...");
 
-    const files = fs.readdirSync(uploadsDir).filter(
-      (file) => file !== "history"
-    );
+    // fetch all active backup users
+    const users = await BackupSetting.find({ isActive: true });
 
-    if (files.length === 0) {
-      console.log("No backup files found.");
+    if (users.length === 0) {
+      console.log("No active backup settings found.");
       return;
     }
 
-    files.forEach((file) => {
-      const oldPath = path.join(uploadsDir, file);
-      const newPath = path.join(historyDir, file);
-
-      fs.renameSync(oldPath, newPath);
-      console.log(`Moved backup to history: ${ file }`);
-    });
+    for (let user of users) {
+      const result = await runBackupForUser(user.userId);
+      console.log(result.message);
+    }
   });
 };
 
