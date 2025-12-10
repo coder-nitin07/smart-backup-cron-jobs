@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs-extra');
 const db = require('./config/db');
 const router = require('./routes/backupRoutes');
+const { startBackupCron } = require('./cron/backupCron');
 require('dotenv').config();
 
 app.use(express.json());
@@ -23,6 +24,8 @@ app.use('/api/backups', router);
 app.get('/', (req, res)=>{
     res.send('Smart Auto Backup App running...');
 });
+
+startBackupCron();
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, ()=>{
